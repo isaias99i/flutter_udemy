@@ -28,7 +28,7 @@ class TransactionForm extends StatelessWidget {
           children: [
             TextField(
               controller: titleController,
-              keyboardType: TextInputType.text,
+              onSubmitted: (value) => _submitForm(),
               decoration: InputDecoration(
                 labelText: 'Título',
               ),
