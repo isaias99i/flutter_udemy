@@ -1,8 +1,10 @@
+import 'package:expenses/components/chart.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import './models/transaction.dart';
 import './components/transaction_form.dart';
 import './components/transaction_list.dart';
+import './components/chart.dart';
 
 main() => runApp(ExpensesApp());
 
@@ -15,12 +17,13 @@ class ExpensesApp extends StatelessWidget {
       home: MyHomePage(),
       theme: tema.copyWith(
         colorScheme: tema.colorScheme.copyWith(
-          primary: Colors.redAccent,
+          primary: Colors.purple,
           secondary: Colors.amber,
+
         ),
         textTheme: tema.textTheme.copyWith(
           headline6: TextStyle(
-            fontFamily: 'OpenSans',
+            fontFamily: 'Quicksand',
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.black
@@ -30,7 +33,7 @@ class ExpensesApp extends StatelessWidget {
           titleTextStyle: TextStyle(
             fontFamily: 'OpenSans',
             fontSize: 20,
-            fontWeight: FontWeight.bold
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
@@ -44,19 +47,32 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final _transactions = [
+  final List<Transaction> _transactions = [
+    Transaction(
+        id: 't0',
+        title: 'Chuteira',
+        value: 179.99,
+        date: DateTime.now().subtract(Duration(days: 32))),
     Transaction(
         id: 't1',
         title: 'Whey Protein 2Kg',
         value: 99.99,
-        date: DateTime.now()),
+        date: DateTime.now().subtract(Duration(days: 3))),
+
     Transaction(
         id: 't2',
         title: 'Creatina - 500g',
         value: 232.20,
-        date: DateTime.now()),
+        date: DateTime.now().subtract(Duration(days: 5))),
   ];
-
+List<Transaction> get _recentTransaction{
+  return _transactions.where((tr) {
+    return tr.date.isAfter(DateTime.now().subtract(
+        Duration(days: 7),
+    ));
+  })
+      .toList();
+}
   _addTransaction(String title, double value) {
     final newTransaction = Transaction(
         id: Random().nextDouble().toString(),
@@ -95,13 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              child: Card(
-                color: Colors.blue,
-                child: Text('Gráfico'),
-                elevation: 5,
-              ),
-            ),
+            Chart(_recentTransaction),
             TransactionList(_transactions),
           ],
         ),
