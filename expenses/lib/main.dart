@@ -62,8 +62,18 @@ class _MyHomePageState extends State<MyHomePage> {
     Transaction(
         id: 't2',
         title: 'Creatina - 500g',
-        value: 232.20,
+        value: 23200.20,
         date: DateTime.now().subtract(Duration(days: 5))),
+    Transaction(
+        id: 't3',
+        title: 'Nescau - 500g',
+        value: 7.99,
+        date: DateTime.now()),
+    Transaction(
+        id: 't4',
+        title: 'Granolas - 250g',
+        value: 40009.99,
+        date: DateTime.now()),
   ];
 List<Transaction> get _recentTransaction{
   return _transactions.where((tr) {
