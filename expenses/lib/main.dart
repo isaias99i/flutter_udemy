@@ -6,30 +6,33 @@ import './components/transaction_form.dart';
 import './components/transaction_list.dart';
 import './components/chart.dart';
 
-main() => runApp(ExpensesApp());
+main() => runApp(const ExpensesApp());
 
 class ExpensesApp extends StatelessWidget {
+  const ExpensesApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final ThemeData tema = ThemeData();
 
     return MaterialApp(
-      home: MyHomePage(),
+      home: const MyHomePage(),
       theme: tema.copyWith(
         colorScheme: tema.colorScheme.copyWith(
           primary: Colors.purple,
           secondary: Colors.amber,
-
         ),
+        primaryColor: Colors.purple,
         textTheme: tema.textTheme.copyWith(
-          headline6: TextStyle(
-            fontFamily: 'Quicksand',
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black
-          ),
+          headline6: const TextStyle(
+              fontFamily: 'Quicksand',
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black),
+          button:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        appBarTheme: AppBarTheme(
+        appBarTheme: const AppBarTheme(
           titleTextStyle: TextStyle(
             fontFamily: 'OpenSans',
             fontSize: 20,
@@ -42,53 +45,30 @@ class ExpensesApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<Transaction> _transactions = [
-    Transaction(
-        id: 't0',
-        title: 'Chuteira',
-        value: 179.99,
-        date: DateTime.now().subtract(Duration(days: 32))),
-    Transaction(
-        id: 't1',
-        title: 'Whey Protein 2Kg',
-        value: 99.99,
-        date: DateTime.now().subtract(Duration(days: 3))),
+  final List<Transaction> _transactions = [];
 
-    Transaction(
-        id: 't2',
-        title: 'Creatina - 500g',
-        value: 23200.20,
-        date: DateTime.now().subtract(Duration(days: 5))),
-    Transaction(
-        id: 't3',
-        title: 'Nescau - 500g',
-        value: 7.99,
-        date: DateTime.now()),
-    Transaction(
-        id: 't4',
-        title: 'Granolas - 250g',
-        value: 40009.99,
-        date: DateTime.now()),
-  ];
-List<Transaction> get _recentTransaction{
-  return _transactions.where((tr) {
-    return tr.date.isAfter(DateTime.now().subtract(
-        Duration(days: 7),
-    ));
-  })
-      .toList();
-}
-  _addTransaction(String title, double value) {
+  List<Transaction> get _recentTransaction {
+    return _transactions.where((tr) {
+      return tr.date.isAfter(DateTime.now().subtract(
+        const Duration(days: 7),
+      ));
+    }).toList();
+  }
+
+  _addTransaction(String title, double value, DateTime date) {
     final newTransaction = Transaction(
-        id: Random().nextDouble().toString(),
-        title: title,
-        value: value,
-        date: DateTime.now());
+      id: Random().nextDouble().toString(),
+      title: title,
+      value: value,
+      date: date,
+    );
 
     setState(() {
       _transactions.add(newTransaction);
@@ -97,37 +77,53 @@ List<Transaction> get _recentTransaction{
     Navigator.of(context).pop();
   }
 
+  _removeTransaction(String id) {
+    setState(() {
+      _transactions.removeWhere((tr) => tr.id == id);
+    });
+  }
+
   _openTransactionFormModal(BuildContext context) {
     showModalBottomSheet(
-        context: context,
-        builder: (_) {
-          return TransactionForm(_addTransaction);
-        });
+      context: context,
+      builder: (_) {
+        return TransactionForm(_addTransaction);
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final appBar = AppBar(
+      title: const Text('Despesas Pessoais'),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.add),
+          onPressed: () => _openTransactionFormModal(context),
+        )
+      ],
+    );
+    final availabelHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Despesas Pessoais'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () => _openTransactionFormModal(context),
-          )
-        ],
-      ),
+      appBar:
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Chart(_recentTransaction),
-            TransactionList(_transactions),
+            Container(
+              height: availabelHeight * 0.4,
+              child: Chart(_recentTransaction),
+            ),
+            Container(
+              height: availabelHeight * 0.6,
+              child: TransactionList(_transactions, _removeTransaction),
+            ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
         onPressed: () => _openTransactionFormModal(context),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
