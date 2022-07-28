@@ -1,5 +1,6 @@
 import 'package:expenses/components/chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:math';
 import './models/transaction.dart';
 import './components/transaction_form.dart';
@@ -53,6 +54,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final List<Transaction> _transactions = [];
+  bool _showChart = false;
 
   List<Transaction> get _recentTransaction {
     return _transactions.where((tr) {
@@ -94,31 +96,52 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    bool isLandScape = MediaQuery.of(context).orientation == Orientation.landscape;
+
     final appBar = AppBar(
-      title: const Text('Despesas Pessoais'),
+      title: Text(
+        'Despesas Pessoais',
+        style: TextStyle(
+          fontSize: 20 * MediaQuery.of(context).textScaleFactor,
+        ),
+      ),
       actions: [
+        if(isLandScape)
+        IconButton(
+          icon: Icon(_showChart ? Icons.list : Icons.show_chart),
+          onPressed: () {
+            setState(() {
+              _showChart = !_showChart;
+            });
+          },
+        ),
         IconButton(
           icon: const Icon(Icons.add),
           onPressed: () => _openTransactionFormModal(context),
-        )
+        ),
       ],
     );
-    final availabelHeight = MediaQuery.of(context).size.height;
+    final availabelHeight = MediaQuery.of(context).size.height -
+        appBar.preferredSize.height -
+        MediaQuery.of(context).padding.top;
 
     return Scaffold(
-      appBar:
+      appBar: appBar,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              height: availabelHeight * 0.4,
-              child: Chart(_recentTransaction),
-            ),
-            Container(
-              height: availabelHeight * 0.6,
-              child: TransactionList(_transactions, _removeTransaction),
-            ),
+            if (isLandScape)
+            if (_showChart || !isLandScape)
+              Container(
+                height: availabelHeight * (isLandScape ? 0.65 : 0.375),
+                child: Chart(_recentTransaction),
+              ),
+            if (!_showChart || !isLandScape)
+              Container(
+                height: availabelHeight * (isLandScape ? 0.35 : 0.625),
+                child: TransactionList(_transactions, _removeTransaction),
+              ),
           ],
         ),
       ),
